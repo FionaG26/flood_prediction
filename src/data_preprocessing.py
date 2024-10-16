@@ -3,7 +3,7 @@ import os
 
 def load_data(filepath):
     """Load flood data from a CSV file."""
-    return pd.read_csv(filepath, encoding='ISO-8859-1')
+    return pd.read_csv(filepath)
 
 def clean_data(df):
     """Clean and preprocess the flood data."""
