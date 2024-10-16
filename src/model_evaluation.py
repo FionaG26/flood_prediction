@@ -8,13 +8,13 @@ def load_model(filepath):
 
 def preprocess_test_data(df):
     """Preprocess the test data to convert columns to numeric."""
-    columns_to_process = ['exposed_(mn)', 'displaced_(k)', 'killed', 'duration(days)']
+    numeric_columns = ['exposed_(mn)', 'displaced_(k)', 'killed', 'duration(days)']
 
-    for column in columns_to_process:
+    for column in numeric_columns:
         df[column] = df[column].astype(str).str.replace(',', '').str.strip()
         df[column] = pd.to_numeric(df[column], errors='coerce')
 
-    df.dropna(subset=columns_to_process, inplace=True)
+    df.dropna(subset=numeric_columns, inplace=True)
 
     return df
 
@@ -41,13 +41,9 @@ if __name__ == "__main__":
     print("Test DataFrame Head:")
     print(df_test.head())
 
-    # Check the data types of the target variable
-    print("Data types in Test DataFrame:")
-    print(df_test.dtypes)
-
     # Define features and target variable for test data
     X_test = df_test[['exposed_(mn)', 'displaced_(k)', 'killed', 'duration(days)']]  # Features
-    y_test = df_test['exposed_(mn)']  # Using exposed_(mn) as target variable
+    y_test = df_test['displaced_(k)']  # Using displaced_(k) as target variable
 
     # Ensure y_test is numeric before proceeding
     if not pd.api.types.is_numeric_dtype(y_test):

@@ -14,8 +14,14 @@ def clean_data(df):
     # Rename columns to remove whitespace and make them easier to access
     df.columns = df.columns.str.strip().str.replace(' ', '_')
 
-    # Handle missing values, if any (example: fill with 0 or drop)
-    df.fillna(0, inplace=True)  # Replace missing values with 0 (customize as needed)
+    # Remove commas from numeric columns and convert them to numeric types
+    numeric_columns = ['exposed_(mn)', 'displaced_(k)', 'killed', 'duration(days)']
+    for column in numeric_columns:
+        df[column] = df[column].astype(str).str.replace(',', '').str.strip()
+        df[column] = pd.to_numeric(df[column], errors='coerce')
+    
+    # Drop rows with NaN values in these columns
+    df.dropna(subset=numeric_columns, inplace=True)
 
     return df
 

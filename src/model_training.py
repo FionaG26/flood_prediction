@@ -11,16 +11,14 @@ def load_cleaned_data(filepath):
 def preprocess_data(df):
     """Preprocess the data to convert columns to numeric."""
     
-    # Define a list of columns to process
-    columns_to_process = ['exposed_(mn)', 'displaced_(k)', 'killed', 'duration(days)']
-    
-    for column in columns_to_process:
-        # Convert to string first to handle non-string types
+    # Clean and convert numeric columns again (if necessary)
+    numeric_columns = ['exposed_(mn)', 'displaced_(k)', 'killed', 'duration(days)']
+    for column in numeric_columns:
         df[column] = df[column].astype(str).str.replace(',', '').str.strip()
         df[column] = pd.to_numeric(df[column], errors='coerce')
 
     # Drop rows with NaN values in these columns
-    df.dropna(subset=columns_to_process, inplace=True)
+    df.dropna(subset=numeric_columns, inplace=True)
 
     return df
 
@@ -43,14 +41,9 @@ if __name__ == "__main__":
     # Preprocess the data
     df = preprocess_data(df)
 
-    # Print the columns to confirm
-    print("Columns in the DataFrame:", df.columns.tolist())
-    print("Data types in DataFrame:")
-    print(df.dtypes)
-
     # Prepare the features and target variable
     X = df[['exposed_(mn)', 'displaced_(k)', 'killed', 'duration(days)']]
-    y = df['displaced_(k)']  # Change the target variable
+    y = df['displaced_(k)']  # Using displaced_(k) as target variable
 
     # Split the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
