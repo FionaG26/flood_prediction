@@ -1,34 +1,38 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+import os
 
-def load_data(file_path):
-    """Load the dataset from a CSV file."""
-    return pd.read_csv(file_path)
+def load_data(filepath):
+    """Load flood data from a CSV file."""
+    return pd.read_csv(filepath, encoding='ISO-8859-1')
 
 def clean_data(df):
-    """Clean the dataset by handling missing values and dropping irrelevant columns."""
-    # Example: Drop irrelevant columns
-    df.drop(columns=['cause', 'Areas_Affected'], inplace=True)
-    
-    # Handle missing values
-    df.fillna(0, inplace=True)
-    
+    """Clean and preprocess the flood data."""
+    # Convert 'flood' column to datetime
+    df['flood'] = pd.to_datetime(df['flood'], errors='coerce')  # Ensure errors are handled
+    df.dropna(subset=['flood'], inplace=True)  # Drop rows with invalid dates
+
+    # Rename columns to remove whitespace and make them easier to access
+    df.columns = df.columns.str.strip().str.replace(' ', '_')
+
+    # Handle missing values, if any (example: fill with 0 or drop)
+    df.fillna(0, inplace=True)  # Replace missing values with 0 (customize as needed)
+
     return df
 
-def encode_categorical_variables(df):
-    """Encode categorical variables."""
-    df['Contributing_factors'] = df['Contributing_factors'].astype('category').cat.codes
-    return df
+def save_cleaned_data(df, filepath):
+    """Save cleaned data to a new CSV file."""
+    df.to_csv(filepath, index=False)
 
-def preprocess_data(file_path):
-    """Load and preprocess the data."""
-    df = load_data(file_path)
-    df = clean_data(df)
-    df = encode_categorical_variables(df)
-    
-    # Split the data into features and target variable
-    X = df.drop(columns=['exposed_mn'])
-    y = df['exposed_mn']
-    
-    return train_test_split(X, y, test_size=0.2, random_state=42)
+if __name__ == "__main__":
+    # Update file paths to use relative paths
+    raw_filepath = '../data/raw/sorted_flood_data.csv'  # Path to raw data
+    cleaned_filepath = '../data/processed/cleaned_flood_data.csv'  # Path to save cleaned data
+
+    # Debugging: Check current working directory
+    print("Current Working Directory:", os.getcwd())
+
+    df = load_data(raw_filepath)
+    cleaned_df = clean_data(df)
+    save_cleaned_data(cleaned_df, cleaned_filepath)
+    print(f'Cleaned data saved to {cleaned_filepath}')
 
